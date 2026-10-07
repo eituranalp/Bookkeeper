@@ -8,3 +8,11 @@
 
 # Claude working setup (local only)
 .claude/
+
+# Local playground (not part of the app)
+Playground.java
+playground.json
+
+# App data file (each person keeps their own)
+entries.json
+*.json.tmp
