@@ -5,3 +5,6 @@
 *.pdb
 *.ilk
 *.class
+
+# Claude working setup (local only)
+.claude/
