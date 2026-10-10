@@ -1,1 +1,169 @@
-/* Colors, fonts, layout. */
+/* Bookkeeper styles: grayscale, matching the Figma wireframes */
+:root {
+    --ink: #212121;
+    --muted: #737373;
+    --line: #c7c7c7;
+    --surface: #f2f2f2;
+    --radius: 4px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+body {
+    margin: 0;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-size: 14px;
+    color: var(--ink);
+    background: #ffffff;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px max(80px, calc((100% - 1440px) / 2 + 80px));
+    border-bottom: 1px solid var(--line);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 20px;
+}
+
+main {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 32px 80px;
+}
+
+.title-row {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.title-row h2 {
+    margin: 0;
+    font-size: 28px;
+}
+
+#entry-count {
+    color: var(--muted);
+}
+
+.toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.sort {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+input,
+select,
+textarea {
+    font: inherit;
+    color: var(--ink);
+    padding: 10px 12px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #ffffff;
+}
+
+#search {
+    width: 360px;
+}
+
+#sort {
+    width: 200px;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 16px;
+    border: 1px solid var(--ink);
+    border-radius: var(--radius);
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.button-primary {
+    background: var(--ink);
+    color: #ffffff;
+}
+
+.button-secondary {
+    background: #ffffff;
+    color: var(--ink);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid var(--line);
+}
+
+th,
+td {
+    padding: 14px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--line);
+}
+
+th {
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border: 1px solid var(--muted);
+    border-radius: 10px;
+    font-size: 12px;
+}
+
+.review {
+    color: var(--muted);
+}
+
+.link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    margin-right: 16px;
+    font: inherit;
+    color: var(--ink);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.message {
+    padding: 72px 64px;
+    text-align: center;
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+}
+
+.message p {
+    margin: 0 0 12px;
+}
+

@@ -1,1 +1,65 @@
-<!-- Main page: list of entries, search bar, sort and type filters. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookkeeper</title>
+    <link rel="stylesheet" href="Style.css">
+    <!-- defer makes script run after page has loaded -->
+    <script src="app.js" defer></script>          
+</head>
+<body>
+    <header>
+        <h1>Bookkeeper</h1>
+        <!-- link rather than button -->
+        <a href="Form.html" class="button button-primary">+ Add entry</a>    
+    </header>
+    <main>
+        <div class="title-row">
+            <h2>My entries</h2>
+            <!-- app.js updates entry count w/ real number -->
+            <span id="entry-count">0 entries</span>     
+        </div>
+        <div class="toolbar">
+            <input type="search" id="search" placeholder="Search by title" aria-label="Search by title">
+
+            <div class="sort">
+                <label for="sort">Sort by</label>
+                <select id="sort">
+                    <option value="newest">Date added (newest)</option>
+                    <option value="oldest">Date added (oldest)</option>
+                    <option value="title">Title (A-Z)</option>
+                    <option value="rating">Rating (high to low)</option>
+                </select>
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Rating</th>
+                    <th>Review</th>
+                    <th>Date added</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="entries-body"></tbody>
+        </table>
+        <div id="empty-state" class="message" hidden>
+            <p><strong>No entries yet</strong></p>
+            <p>Add a book, movie or game to start your list.</p>
+            <a href="Form.html" class="button button-primary">Add your first entry</a>
+        </div>
+
+        <div id="no-results" class="message" hidden>
+            <p><strong>No entries match your search</strong></p>
+            <p>Check the spelling or try a different title.</p>
+        </div>
+
+
+
+    </main>
+</body>
+</html>
+
