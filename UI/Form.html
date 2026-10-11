@@ -1,1 +1,80 @@
-<!-- Add/edit entry form: title, media type, rating, review. -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add entry - Bookkeeper</title>
+    <link rel="stylesheet" href="Style.css">
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <header>
+        <h1>Bookkeeper</h1>
+    </header>
+
+    <main class="form-page">
+        <a href="Index.html" class="back-link">← Back to list</a>
+        <h2 id="form-heading">Add entry</h2>
+        <p class="hint">* Required</p>
+
+        <form id="entry-form" novalidate>
+            <div class="field">
+                <label for="title">Title *</label>
+                <input type="text" id="title" name="title" placeholder="e.g. Dune">
+                <p class="error" id="title-error" hidden>! Title is required.</p>
+            </div>
+
+            <div class="field">
+                <label for="media-type">Media type *</label>
+                <select id="media-type" name="mediaType">
+                    <option value="">Select a type</option>
+                    <option value="BOOK">Book</option>
+                    <option value="MOVIE">Movie</option>
+                    <option value="GAME">Game</option>
+                    <option value="CUSTOM">Custom</option>
+                </select>
+                <p class="error" id="media-type-error" hidden>! Select a media type.</p>
+            </div>
+
+            <div class="field" id="custom-field" hidden>
+                <label for="custom-type">Custom label *</label>
+                <input type="text" id="custom-type" name="customType" placeholder="e.g. Board game">
+                <p class="error" id="custom-type-error" hidden>! Enter a label for the custom type.</p>
+            </div>
+
+            <div class="field">
+                <label for="rating">Rating (1-10)</label>
+                <select id="rating" name="rating" class="short">
+                    <option value="">Not rated</option>
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8">8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+
+            
+
+            <div class="field">
+                <label for="review">Review / notes</label>
+                <textarea id="review" name="review" rows="5" placeholder="What did you think?"></textarea>
+            </div>
+
+            <p id="dates" class="hint" hidden></p>
+
+            <div class="form-buttons">
+                <button type="submit" class="button button-primary" id="save-button">Save entry</button>
+                <a href="Index.html" class="button button-secondary">Cancel</a>
+            </div>
+        </form>
+
+    </main>
+    
+</body>
+</html>

@@ -40,6 +40,25 @@ function getEntries() {
     return loadEntries();
 }
 
+function addEntry(fields) {
+    const entries = loadEntries();
+
+    // Next id is one more than the highest id
+    let nextId = 1;
+    for (const e of entries) {
+        if (e.id >= nextId) {
+            nextId = e.id + 1;
+        }
+    }
+
+    const now = new Date().toISOString();
+    const entry = { id: nextId, ...fields, dateCreated: now, dateUpdated: now };
+
+    entries.push(entry);
+    saveEntries(entries);
+    return entry;
+}
+
 // Dislay helpers
 
 // "BOOK" -> "Book"; for CUSTOM, show the user's own label
@@ -110,9 +129,67 @@ function renderList(entries) {
     emptyState.hidden = entries.length !== 0;
 }
 
+// Form page
+
+function readForm() {
+    const mediaType = document.getElementById('media-type').value;
+    const ratingText = document.getElementById('rating').value;
+
+    return {
+        title: document.getElementById('title').value.trim(),
+        mediaType: mediaType,
+        customType: mediaType === 'CUSTOM' ? document.getElementById('custom-type').value.trim() : null,
+        rating: ratingText === '' ? null : Number(ratingText),
+        review: document.getElementById('review').value.trim()
+    };
+}
+
+function showError(inputId, errorId, hasError) {
+    document.getElementById(inputId).classList.toggle('invalid', hasError);
+    document.getElementById(errorId).hidden = !hasError;
+}
+
+function validate(fields) {
+    const titleMissing = fields.title === '';
+    const typeMissing = fields.mediaType === '';
+    const customMissing = fields.mediaType === 'CUSTOM' && fields.customType === '';
+
+    showError('title', 'title-error', titleMissing);
+    showError('media-type', 'media-type-error', typeMissing);
+    showError('custom-type', 'custom-type-error', customMissing);
+
+    return !titleMissing && !typeMissing && !customMissing;
+}
+
+function updateCustomField() {
+    const isCustom = document.getElementById('media-type').value === 'CUSTOM';
+    document.getElementById('custom-field').hidden = !isCustom;
+}
+
+function setUpForm() {
+    const form = document.getElementById('entry-form');
+
+    document.getElementById('media-type').addEventListener('change', updateCustomField);
+
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();     // stop the page from reloading
+        const fields = readForm();
+        if (!validate(fields)) {
+            return;                 // errors are showing
+        }
+
+        addEntry(fields);
+        window.location.href = 'Index.html';    // back to the list
+    });
+}
+
 // Start
 // app.js is shared by Index.html and Form.html, so the list code
 // runs only on the page that has the table.
 if (document.getElementById('entries-body')) {
     renderList(getEntries());
+}
+
+if (document.getElementById('entry-form')) {
+    setUpForm();
 }

@@ -167,3 +167,64 @@ th {
     margin: 0 0 12px;
 }
 
+/* Form */
+
+.form-page {
+    max-width: 720px;
+}
+
+.back-link {
+    color: var(--muted);
+}
+
+.form-page h2 {
+    margin: 16px 0 4px;
+    font-size: 28px;
+}
+
+.hint {
+    margin: 0 0 20px;
+    color: var(--muted);
+    font-size: 12px;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.field label {
+    font-weight: 600;
+}
+
+.field input,
+.field select,
+.field textarea {
+    width: 100%;
+}
+
+.field .short {
+    width: 200px;
+}
+
+.error {
+    margin: 0;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.invalid {
+    border: 2px solid var(--ink);
+}
+
+.form-buttons {
+    display: flex;
+    gap: 12px;
+}
