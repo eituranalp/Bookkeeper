@@ -1,62 +1,43 @@
 // Bookkeeper front end.
-// For now, data is kept in the browser's localStorage. Only the four data
-// functions (getEntries, addEntry, updateEntry, deleteEntry) touch storage.
-// so they are the tonly code that chagnes when we connect to backend.
-
-const STORAGE_KEY = 'bookkeeper-entries';
-
-const SAMPLE_ENTRIES = [
-    { id: 1, title: 'Basket Case', mediaType: 'MOVIE', customType: null, rating: null,
-      review: 'Quintessential b-movie horror', dateCreated: '2026-09-20T18:00:00', dateUpdated: '2026-09-20T18:00:00' },
-    { id: 2, title: 'The Hobbit', mediaType: 'BOOK', customType: null, rating: 8,
-      review: 'All time classic high fantasy novel', dateCreated: '2026-09-20T18:00:00', dateUpdated: '2026-09-20T18:00:00' },
-    { id: 3, title: 'Monopoly', mediaType: 'CUSTOM', customType: 'Board game', rating: 5,
-      review: 'Fun depending on who you play with', dateCreated: '2026-09-24T18:00:00', dateUpdated: '2026-09-24T18:00:00' },
-    { id: 4, title: 'Halo', mediaType: 'GAME', customType: null, rating: 10,
-      review: 'This is my favorite game to play online', dateCreated: '2026-09-25T18:00:00', dateUpdated: '2026-09-25T18:00:00' },
-    { id: 5, title: 'Shrek', mediaType: 'MOVIE', customType: null, rating: 2,
-      review: 'I hate this movie tbh', dateCreated: '2026-09-27T18:00:00', dateUpdated: '2026-09-27T18:00:00' },
-    { id: 6, title: 'Dune', mediaType: 'BOOK', customType: null, rating: 10,
-      review: 'Frank Herbert is a genius', dateCreated: '2026-09-28T18:00:00', dateUpdated: '2026-09-28T18:00:00' }
-];
-
-// Storage helpers
-
-function loadEntries() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved === null) {
-        return [...SAMPLE_ENTRIES];     // first visit: start with a copy of the samples
-    }
-    return JSON.parse(saved);
-}
-
-function saveEntries(entries) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-}
+// Entries are stored by the Java backend (open the app at http://localhost:8080).
+// Only the data functions talk to the backend, using the routes under /entries.
 
 // Data functions
 
-function getEntries() {
-    return loadEntries();
+// Sends one request to the backend and returns its JSON answer.
+// Errors come back as {"error": "message"} and are thrown as an Error with that message.
+async function request(method, path, fields) {
+    const options = { method: method };
+    if (fields !== undefined) {
+        options.headers = { 'Content-Type': 'application/json' };
+        options.body = JSON.stringify(fields);
+    }
+    const response = await fetch(path, options);
+    const result = await response.json();
+    if (!response.ok) {
+        throw new Error(result.error);
+    }
+    return result;
 }
 
+// All entries.
+function getEntries() {
+    return request('GET', '/entries');
+}
+
+// Saves a new entry. The server gives it an id and dates and returns it.
 function addEntry(fields) {
-    const entries = loadEntries();
+    return request('POST', '/entries', fields);
+}
 
-    // Next id is one more than the highest id
-    let nextId = 1;
-    for (const e of entries) {
-        if (e.id >= nextId) {
-            nextId = e.id + 1;
-        }
-    }
+// Replaces entry `id` with these fields and returns the updated entry.
+function updateEntry(id, fields) {
+    return request('PUT', '/entries/' + id, fields);
+}
 
-    const now = new Date().toISOString();
-    const entry = { id: nextId, ...fields, dateCreated: now, dateUpdated: now };
-
-    entries.push(entry);
-    saveEntries(entries);
-    return entry;
+// Removes entry `id` and returns the removed entry.
+function deleteEntry(id) {
+    return request('DELETE', '/entries/' + id);
 }
 
 // Dislay helpers
@@ -97,6 +78,7 @@ function makeActionsCell(entry) {
         button.className = 'link-button';
         button.textContent = label;
         button.dataset.id = entry.id;
+        button.dataset.title = entry.title;     // for the delete question
         button.dataset.action = label.toLowerCase();
         cell.append(button);
     }
@@ -127,6 +109,39 @@ function renderList(entries) {
     count.textContent = entries.length + (entries.length === 1 ? ' entry' : ' entries');
     table.hidden = entries.length === 0;
     emptyState.hidden = entries.length !== 0;
+}
+
+// Gets the entries from the backend and shows them.
+function loadList() {
+    getEntries()
+        .then(renderList)
+        .catch(error => alert('Could not load entries: ' + error.message));
+}
+
+// One click handler for the whole table: Edit opens the form, Delete asks first.
+function setUpListActions() {
+    document.getElementById('entries-body').addEventListener('click', async (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) {
+            return;                 // the click wasn't on a button
+        }
+        const id = button.dataset.id;
+
+        if (button.dataset.action === 'edit') {
+            window.location.href = 'Form.html?id=' + id;
+            return;
+        }
+
+        if (!confirm('Delete "' + button.dataset.title + '"? This can\'t be undone.')) {
+            return;
+        }
+        try {
+            await deleteEntry(id);
+            loadList();             // show the list without it
+        } catch (error) {
+            alert('Could not delete the entry: ' + error.message);
+        }
+    });
 }
 
 // Form page
@@ -166,20 +181,63 @@ function updateCustomField() {
     document.getElementById('custom-field').hidden = !isCustom;
 }
 
+// Edit mode: finds entry `id` and puts its details into the form.
+async function fillForm(id) {
+    try {
+        const entry = (await getEntries()).find(e => String(e.id) === id);
+        if (!entry) {
+            alert('No entry with id ' + id + '. It may have been deleted.');
+            window.location.href = 'Index.html';
+            return;
+        }
+
+        document.title = 'Edit entry - Bookkeeper';
+        document.getElementById('form-heading').textContent = 'Edit entry';
+        document.getElementById('save-button').textContent = 'Save changes';
+
+        document.getElementById('title').value = entry.title;
+        document.getElementById('media-type').value = entry.mediaType;
+        document.getElementById('custom-type').value = entry.customType || '';
+        document.getElementById('rating').value = entry.rating === null ? '' : String(entry.rating);
+        document.getElementById('review').value = entry.review || '';
+        updateCustomField();
+
+        const dates = document.getElementById('dates');
+        dates.textContent = 'Added ' + formatDate(entry.dateCreated) + ' · Last updated ' + formatDate(entry.dateUpdated);
+        dates.hidden = false;
+    } catch (error) {
+        alert('Could not load the entry: ' + error.message);
+    }
+}
+
 function setUpForm() {
     const form = document.getElementById('entry-form');
+    const id = new URLSearchParams(window.location.search).get('id');  // null when adding
 
     document.getElementById('media-type').addEventListener('change', updateCustomField);
 
-    form.addEventListener('submit', (event) => {
+    if (id !== null) {
+        fillForm(id);
+    }
+
+    form.addEventListener('submit', async (event) => {
         event.preventDefault();     // stop the page from reloading
         const fields = readForm();
         if (!validate(fields)) {
             return;                 // errors are showing
         }
 
-        addEntry(fields);
-        window.location.href = 'Index.html';    // back to the list
+        try {
+            // wait until the server has saved it
+            if (id === null) {
+                await addEntry(fields);
+            } else {
+                await updateEntry(id, fields);
+            }
+            window.location.href = 'Index.html';    // back to the list
+        } catch (error) {
+            alert('Could not save the entry: ' + error.message);
+        }
     });
 }
 
@@ -187,7 +245,8 @@ function setUpForm() {
 // app.js is shared by Index.html and Form.html, so the list code
 // runs only on the page that has the table.
 if (document.getElementById('entries-body')) {
-    renderList(getEntries());
+    setUpListActions();
+    loadList();
 }
 
 if (document.getElementById('entry-form')) {

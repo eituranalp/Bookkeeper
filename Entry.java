@@ -30,7 +30,7 @@ public class Entry {
 
     // New entry: both dates are set to now (whole seconds).
     public Entry(int id, String title, MediaType mediaType, String customType, Integer rating, String review) {
-        this(id, title, mediaType, customType, rating, review, LocalDateTime.now().withNano(0), null);
+        this(id, title, mediaType, customType, rating, review, now(), null);
     }
 
     // Existing entry (for example, loaded from the JSON file).
@@ -55,6 +55,17 @@ public class Entry {
         this.review = review;
         this.dateCreated = dateCreated;
         this.dateUpdated = (dateUpdated != null) ? dateUpdated : dateCreated;
+    }
+
+    // An edited copy: new details, same id and dateCreated, dateUpdated set to now.
+    // The same rules apply as for a new entry.
+    public Entry withChanges(String title, MediaType mediaType, String customType, Integer rating, String review) {
+        return new Entry(id, title, mediaType, customType, rating, review, dateCreated, now());
+    }
+
+    // Dates are kept to whole seconds, the same as in the JSON file.
+    private static LocalDateTime now() {
+        return LocalDateTime.now().withNano(0);
     }
 
     // The rating rule: null (not rated) or 1-10.
