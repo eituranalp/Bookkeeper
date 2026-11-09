@@ -3,14 +3,16 @@ import com.sun.net.httpserver.HttpServer;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
+import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
 // Handles HTTP requests and returns JSON.
-//   GET    /entries       -> all entries
+//   GET    /entries       -> all entries; ?search=text and ?sort=newest|oldest|title|rating are optional
 //   POST   /entries       -> add an entry (JSON body), returns the new entry
 //   PUT    /entries/{id}  -> replace an entry (JSON body), returns the updated entry
 //   DELETE /entries/{id}  -> remove an entry, returns the removed entry
@@ -41,7 +43,10 @@ public class Requests {
             String method = exchange.getRequestMethod();
             if (path.equals("/entries")) {
                 switch (method) {
-                    case "GET" -> sendJson(exchange, 200, Store.toJson(entries.getAll()));
+                    case "GET" -> {
+                        Map<String, String> query = readQuery(exchange);
+                        sendJson(exchange, 200, Store.toJson(entries.find(query.get("search"), query.get("sort"))));
+                    }
                     case "POST" -> sendJson(exchange, 201, Store.toJson(addFromBody(exchange)));
                     default -> sendError(exchange, 405, "Method not allowed.");
                 }
@@ -86,6 +91,23 @@ public class Requests {
                 Store.textField(fields, "customType"),
                 Store.wholeNumberField(fields, "rating"),
                 Store.textField(fields, "review"));
+    }
+
+    // Reads the query string, for example "?search=dune&sort=rating" -> {search=dune, sort=rating}.
+    // A bad %-code in the text throws IllegalArgumentException (sent as 400).
+    private static Map<String, String> readQuery(HttpExchange exchange) {
+        Map<String, String> query = new HashMap<>();
+        String raw = exchange.getRequestURI().getRawQuery();
+        if (raw == null) {
+            return query;
+        }
+        for (String pair : raw.split("&")) {
+            String[] parts = pair.split("=", 2);
+            String value = (parts.length == 2) ? parts[1] : "";
+            query.put(URLDecoder.decode(parts[0], StandardCharsets.UTF_8),
+                      URLDecoder.decode(value, StandardCharsets.UTF_8));
+        }
+        return query;
     }
 
     // Reads a JSON object body, for example {"title": "Dune", "mediaType": "BOOK", "rating": 9}.

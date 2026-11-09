@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -72,6 +73,38 @@ public class Entries {
     // All entries, in the order they were added. The returned list is a copy and can't be changed.
     public List<Entry> getAll() {
         return List.copyOf(list);
+    }
+
+    // Entries whose title contains `search` (any letter case), in `sort` order.
+    // search: null or blank gives every entry.
+    // sort: "newest", "oldest", "title" (A-Z) or "rating" (high to low, unrated last).
+    //       null or blank keeps the order they were added.
+    // Throws IllegalArgumentException for any other sort value.
+    public List<Entry> find(String search, String sort) {
+        String text = (search == null) ? "" : search.trim().toLowerCase();
+        List<Entry> found = new ArrayList<>();
+        for (Entry e : list) {
+            if (e.getTitle().toLowerCase().contains(text)) {
+                found.add(e);
+            }
+        }
+
+        if (sort != null && !sort.isBlank()) {
+            Comparator<Entry> newest = Comparator.comparing(Entry::getDateCreated)
+                    .thenComparing(Entry::getId)
+                    .reversed();
+            Comparator<Entry> order = switch (sort.trim()) {
+                case "newest" -> newest;
+                case "oldest" -> newest.reversed();
+                case "title" -> Comparator.comparing(Entry::getTitle, String.CASE_INSENSITIVE_ORDER)
+                        .thenComparing(newest);
+                case "rating" -> Comparator.comparing(Entry::getRating, Comparator.nullsLast(Comparator.reverseOrder()))
+                        .thenComparing(newest);
+                default -> throw new IllegalArgumentException("Sort must be newest, oldest, title or rating.");
+            };
+            found.sort(order);
+        }
+        return List.copyOf(found);
     }
 
     // Position of the entry with this id in the list.
