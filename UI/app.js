@@ -20,9 +20,17 @@ async function request(method, path, fields) {
     return result;
 }
 
-// All entries.
-function getEntries() {
-    return request('GET', '/entries');
+// Entries whose title contains `search`, in `sort` order (newest, oldest, title or rating).
+// Called with no arguments it gives every entry.
+function getEntries(search, sort) {
+    const query = new URLSearchParams();
+    if (search) {
+        query.set('search', search);
+    }
+    if (sort) {
+        query.set('sort', sort);
+    }
+    return request('GET', '/entries?' + query);
 }
 
 // Saves a new entry. The server gives it an id and dates and returns it.
@@ -89,7 +97,9 @@ function renderList(entries) {
     const body = document.getElementById('entries-body');
     const table = body.closest('table');
     const emptyState = document.getElementById('empty-state');
+    const noResults = document.getElementById('no-results');
     const count = document.getElementById('entry-count');
+    const searching = document.getElementById('search').value.trim() !== '';
 
     body.replaceChildren();     // remove any old names
 
@@ -108,14 +118,24 @@ function renderList(entries) {
 
     count.textContent = entries.length + (entries.length === 1 ? ' entry' : ' entries');
     table.hidden = entries.length === 0;
-    emptyState.hidden = entries.length !== 0;
+    // Nothing to show: "No entries yet" for an empty list, "No entries match" for a search.
+    emptyState.hidden = entries.length !== 0 || searching;
+    noResults.hidden = entries.length !== 0 || !searching;
 }
 
-// Gets the entries from the backend and shows them.
+// Gets the entries from the backend, using the search box and sort menu, and shows them.
 function loadList() {
-    getEntries()
+    const search = document.getElementById('search').value.trim();
+    const sort = document.getElementById('sort').value;
+    getEntries(search, sort)
         .then(renderList)
         .catch(error => alert('Could not load entries: ' + error.message));
+}
+
+// Typing in the search box or picking a sort reloads the list.
+function setUpSearchAndSort() {
+    document.getElementById('search').addEventListener('input', loadList);
+    document.getElementById('sort').addEventListener('change', loadList);
 }
 
 // One click handler for the whole table: Edit opens the form, Delete asks first.
@@ -246,6 +266,7 @@ function setUpForm() {
 // runs only on the page that has the table.
 if (document.getElementById('entries-body')) {
     setUpListActions();
+    setUpSearchAndSort();
     loadList();
 }
 
