@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookkeeper</title>
-    <link rel="stylesheet" href="Style.css?v=2">
+    <link rel="stylesheet" href="Style.css?v=3">
     <!-- defer makes script run after page has loaded -->
     <script src="app.js?v=1" defer></script>          
 </head>
@@ -33,19 +33,21 @@
                 </select>
             </div>
         </div>
-        <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th>Rating</th>
-                    <th>Review</th>
-                    <th>Date added</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
-            <tbody id="entries-body"></tbody>
-        </table>
+        <div class="table-scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Rating</th>
+                        <th>Review</th>
+                        <th>Date added</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="entries-body"></tbody>
+            </table>
+        </div>
         <div id="empty-state" class="message" hidden>
             <p><strong>No entries yet</strong></p>
             <p>Add a book, movie or game to start your list.</p>
