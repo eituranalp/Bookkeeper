@@ -5,6 +5,7 @@
     --line: #c7c7c7;
     --surface: #f2f2f2;
     --radius: 4px;
+    --error: #c62828;
 }
 
 * {
@@ -218,10 +219,11 @@ form {
     margin: 0;
     font-size: 12px;
     font-weight: 600;
+    color: var(--error);
 }
 
 .invalid {
-    border: 2px solid var(--ink);
+    border: 2px solid var(--error);
 }
 
 .form-buttons {
