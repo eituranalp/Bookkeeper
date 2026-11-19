@@ -138,9 +138,37 @@ function setUpSearchAndSort() {
     document.getElementById('sort').addEventListener('change', loadList);
 }
 
+// Delete dialog
+const deleteDialog = document.getElementById('delete-dialog');
+let pendingDeleteId = null;
+
+// Remembers which entry this is, fills in its title, and shows the dialog.
+function askToDelete(id, title) {
+    pendingDeleteId = id;
+    document.getElementById('delete-dialog-title').textContent = title;
+    deleteDialog.showModal();
+}
+
+function setUpDeleteDialog() {
+    document.getElementById('secondary-cancel').addEventListener('click', () => {
+        deleteDialog.close();
+    });
+
+    document.getElementById('primary-confirm').addEventListener('click', async () => {
+        try {
+            await deleteEntry(pendingDeleteId);
+            deleteDialog.close();
+            loadList();
+        } catch (error) {
+            deleteDialog.close();
+            alert('Could not delete the entry: ' + error.message);
+        }
+    });
+}
+
 // One click handler for the whole table: Edit opens the form, Delete asks first.
 function setUpListActions() {
-    document.getElementById('entries-body').addEventListener('click', async (event) => {
+    document.getElementById('entries-body').addEventListener('click', (event) => {
         const button = event.target.closest('button[data-action]');
         if (!button) {
             return;                 // the click wasn't on a button
@@ -152,15 +180,7 @@ function setUpListActions() {
             return;
         }
 
-        if (!confirm('Delete "' + button.dataset.title + '"? This can\'t be undone.')) {
-            return;
-        }
-        try {
-            await deleteEntry(id);
-            loadList();             // show the list without it
-        } catch (error) {
-            alert('Could not delete the entry: ' + error.message);
-        }
+        askToDelete(id, button.dataset.title);
     });
 }
 
@@ -267,6 +287,7 @@ function setUpForm() {
 if (document.getElementById('entries-body')) {
     setUpListActions();
     setUpSearchAndSort();
+    setUpDeleteDialog();
     loadList();
 }
 

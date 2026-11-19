@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bookkeeper</title>
-    <link rel="stylesheet" href="Style.css">
+    <link rel="stylesheet" href="Style.css?v=1">
     <!-- defer makes script run after page has loaded -->
-    <script src="app.js" defer></script>          
+    <script src="app.js?v=1" defer></script>          
 </head>
 <body>
     <header>
@@ -56,6 +56,14 @@
             <p><strong>No entries match your search</strong></p>
             <p>Check the spelling or try a different title.</p>
         </div>
+
+        <dialog id="delete-dialog">
+            <p>Delete "<span id="delete-dialog-title"></span>"? This can't be undone.</p>
+            <div class="dialog-buttons">
+                <button type="button" id="secondary-cancel" class="button button-secondary">Cancel</button>
+                <button type="button" id="primary-confirm" class="button button-primary">Delete</button>
+            </div>
+        </dialog>
 
 
 

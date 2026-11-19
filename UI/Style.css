@@ -228,3 +228,24 @@ form {
     display: flex;
     gap: 12px;
 }
+
+/* Delete dialog */
+
+dialog#delete-dialog {
+    max-width: 400px;
+    padding: 24px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: #ffffff;
+}
+
+dialog#delete-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
